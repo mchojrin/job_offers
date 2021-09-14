@@ -29,7 +29,23 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    MailChimpGateway:
+        class: App\APIGateway\MailChimpGateway
+        arguments:
+            $apiKey: '%env(MAILCHIMP_API_KEY)%'
+            $listID: '%env(MAILCHIMP_LIST_ID)%'
+            $segmentId: '%env(MAILCHIMP_SEGMENT_ID)%'
+
+    GoogleSpreadSheetGateway:
+        class: App\APIGateway\GoogleSpreadSheetGateway
+        arguments:
+            $spreadsheetId: '%env(GOOGLE_SPREADSHEET_ID)%'
+            $authConfigPath: '%kernel.project_dir%/var/credentials.json'
+            $tokenPath: '%kernel.project_dir%/var/token.json'
+            $sheetName: '%env(GOOGLE_SPREADSHEET_SHEET_NAME)%'
+
     App\Command\CreateEmailCommand:
         class: App\Command\CreateEmailCommand
         arguments:
-            $spreadSheetId: '%env(SPREADSHEET_ID)%'
+            $googleSpreadSheetGateway: '@GoogleSpreadSheetGateway'
+            $mailChimp: '@MailChimpGateway'

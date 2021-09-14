@@ -2,25 +2,31 @@
 
 namespace App\Command;
 
-use Google\Client;
-use Google\Service;
+use App\APIGateway\GoogleSpreadSheetGateway;
+use App\APIGateway\MailChimpGateway;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Twig\Environment;
 
 class CreateEmailCommand extends Command
 {
     protected static $defaultName = 'app:create-email';
     protected static $defaultDescription = 'Create an email to be sent via MailChimp';
-    private $spreadSheetId;
+    private string $spreadSheetId;
+    private GoogleSpreadSheetGateway $googleSpreadSheetGateway;
+    private MailChimpGateway $mailChimpGateway;
+    private Environment $twigEnvironment;
 
-    public function __construct(string $spreadSheetId, string $name = null)
+    public function __construct(GoogleSpreadSheetGateway $googleSpreadSheetGateway, MailChimpGateway $mailChimp, Environment $twigEnvironment, string $name = null)
     {
         parent::__construct($name);
-        $this->spreadSheetId = $spreadSheetId;
+        $this->googleSpreadSheetGateway = $googleSpreadSheetGateway;
+        $this->mailChimpGateway = $mailChimp;
+        $this->twigEnvironment = $twigEnvironment;
     }
 
     protected function configure(): void
@@ -44,85 +50,30 @@ class CreateEmailCommand extends Command
         if ($input->getOption('option1')) {
         }
 
-        $output->writeln('Opening spreadsheet '.$this->spreadSheetId);
+        $output->writeln('Opening spreadsheet');
 
-        $client = $this->getClient();
-        $service = new Service\Sheets($client);
+        $posts = $this->googleSpreadSheetGateway->getCurrentWeekPosts();
 
-        $range = 'Respuestas de formulario 1!A2:M3';
-
-        $response = $service->spreadsheets_values->get($this->spreadSheetId, $range);
-        $values = $response->getValues();
-
-        if (empty($values)) {
-            $output->writeln('No data found');
+        if (empty($posts)) {
+            $output->writeln('No new posts for this week');
 
             return 0;
-        } else {
-            $output->writeln('Found '.count($values).' job offers');
-            /**
-             * @todo Filter only last weeks offers
-             */
-            foreach ($values as $row) {
-                $output->writeln(print_r($row,1));
-                /**
-                 * @todo Build message
-                 */
-                $output->writeln('---');
-            }
-            /**
-             * @todo Send message via MailChimp
-             */
         }
+
+        $html = $this->twigEnvironment->render('mailchimp/job_offers.html.twig',
+        [
+            'posts' => $posts,
+        ]);
+
+        $this->mailChimpGateway->send($html);
 
         $io->success('Email sent');
 
         return 0;
     }
 
-    private function getClient() : Client
+    private function formatPost(array $post) : string
     {
-        $client = new Client();
-        $client->setApplicationName('Google Sheets API PHP Quickstart');
-        $client->setScopes(Service\Sheets::SPREADSHEETS_READONLY);
-        $client->setAuthConfig('var/credentials.json');
-        $client->setAccessType('offline');
-        $client->setPrompt('select_account consent');
-
-        $tokenPath = 'token.json';
-        if (file_exists($tokenPath)) {
-            $accessToken = json_decode(file_get_contents($tokenPath), true);
-            $client->setAccessToken($accessToken);
-        }
-
-        // If there is no previous token or it's expired.
-        if ($client->isAccessTokenExpired()) {
-            // Refresh the token if possible, else fetch a new one.
-            if ($client->getRefreshToken()) {
-                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-            } else {
-                // Request authorization from the user.
-                $authUrl = $client->createAuthUrl();
-                printf("Open the following link in your browser:\n%s\n", $authUrl);
-                print 'Enter verification code: ';
-                $authCode = trim(fgets(STDIN));
-
-                // Exchange authorization code for an access token.
-                $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
-                $client->setAccessToken($accessToken);
-
-                // Check to see if there was an error.
-                if (array_key_exists('error', $accessToken)) {
-                    throw new Exception(join(', ', $accessToken));
-                }
-            }
-            // Save the token to a file.
-            if (!file_exists(dirname($tokenPath))) {
-                mkdir(dirname($tokenPath), 0700, true);
-            }
-            file_put_contents($tokenPath, json_encode($client->getAccessToken()));
-        }
-
-        return $client;
+        return implode(',', $post);
     }
 }
