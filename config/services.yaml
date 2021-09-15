@@ -33,8 +33,9 @@ services:
         class: App\APIGateway\MailChimpGateway
         arguments:
             $apiKey: '%env(MAILCHIMP_API_KEY)%'
-            $listID: '%env(MAILCHIMP_LIST_ID)%'
+            $listId: '%env(MAILCHIMP_LIST_ID)%'
             $segmentId: '%env(MAILCHIMP_SEGMENT_ID)%'
+            $folderId: '%env(MAILCHIMP_FOLDER_ID)%'
 
     GoogleSpreadSheetGateway:
         class: App\APIGateway\GoogleSpreadSheetGateway
