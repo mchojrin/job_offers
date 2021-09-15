@@ -12,6 +12,12 @@ class GoogleSpreadSheetGateway
     private Spreadsheet $spreadsheet;
     private $values;
 
+    /**
+     * @param string $spreadsheetId
+     * @param string $authConfigPath
+     * @param string $tokenPath
+     * @param string $sheetName
+     */
     public function __construct(string $spreadsheetId, string $authConfigPath, string $tokenPath, string $sheetName)
     {
         $this->client = $this->getClient($authConfigPath, $tokenPath);

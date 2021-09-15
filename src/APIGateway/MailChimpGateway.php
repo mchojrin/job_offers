@@ -13,6 +13,13 @@ class MailChimpGateway
 
     private MailChimp $mailChimp;
 
+    /**
+     * @param string $apiKey
+     * @param string $listId
+     * @param string $segmentId
+     * @param string $folderId
+     * @throws \Exception
+     */
     public function __construct(string $apiKey, string $listId, string $segmentId, string $folderId)
     {
         $this->apiKey = $apiKey;
