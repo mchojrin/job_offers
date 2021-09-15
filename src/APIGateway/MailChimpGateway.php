@@ -47,6 +47,7 @@ class MailChimpGateway
                 'title' => 'Ofertas '.date('d.m.Y'),
                 'from_name' => 'Mauro Chojrin',
                 'reply_to' => 'mauro.chojrin@leewayweb.com',
+                'folder_id' => $this->folderId,
             ]
         ]);
 
@@ -70,6 +71,8 @@ class MailChimpGateway
 
                 throw new MailChimpException($result['title'].': '.$result['details']);
             }
+
+
         }
     }
 }
