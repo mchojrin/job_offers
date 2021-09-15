@@ -2,6 +2,7 @@
 
 namespace App\APIGateway;
 
+use App\Exceptions\MailChimpException;
 use DrewM\MailChimp\MailChimp;
 
 class MailChimpGateway
@@ -50,12 +51,25 @@ class MailChimpGateway
         ]);
 
         if (array_key_exists('errors', $result)) {
-            echo 'Errors found: '.print_r($result['errors'],1).PHP_EOL;
+
+            throw new MailChimpException(implode(', ', $result['errors']));
         } else {
             $campaignId = $result['id'];
-            $this->mailChimp->put('campaigns/'.$campaignId, [
+            $result = $this->mailChimp->put('campaigns/'.$campaignId.'/content', [
                 'html' => $html,
             ]);
+
+            if (array_key_exists('status', $result) && $result['status'] !== 200 ) {
+
+                throw new MailChimpException($result['title'].': '.$result['details']);
+            }
+
+            $result = $this->mailChimp->post('campaigns'.$campaignId.'/actions/send');
+
+            if (array_key_exists('status', $result) && $result['status'] !== 200 ) {
+
+                throw new MailChimpException($result['title'].': '.$result['details']);
+            }
         }
     }
 }

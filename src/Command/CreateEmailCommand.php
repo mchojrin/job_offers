@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\APIGateway\GoogleSpreadSheetGateway;
 use App\APIGateway\MailChimpGateway;
+use App\Exceptions\MailChimpException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -70,9 +71,13 @@ class CreateEmailCommand extends Command
                 'posts' => $this->formatPosts($posts),
             ]);
 
-        $this->mailChimpGateway->send($html);
+        try {
+            $this->mailChimpGateway->send($html);
 
-        $io->success('Email sent');
+            $io->success('Email sent!');
+        } catch (MailChimpException $exception) {
+            $io->error($exception->getMessage());
+        }
 
         return 0;
     }
