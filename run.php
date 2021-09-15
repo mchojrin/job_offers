@@ -31,7 +31,7 @@ $theCommand = new CreateEmailCommand(
     ),
     new Environment(new FilesystemLoader(__DIR__ . '/templates'),
         [
-            'cache' => __DIR__ . '/var/cache/' . $_ENV['APP_ENV']
+            'cache' => 'prod' === $_ENV['APP_ENV'] ? __DIR__ . '/var/cache/' . $_ENV['APP_ENV'] : false,
         ]
     )
 );
