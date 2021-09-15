@@ -40,8 +40,7 @@ class CreateEmailCommand extends Command
         $this
             ->setDescription(self::$defaultDescription)
             ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
-        ;
+            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -67,9 +66,9 @@ class CreateEmailCommand extends Command
         }
 
         $html = $this->twigEnvironment->render('mailchimp/job_offers.html.twig',
-        [
-            'posts' => $posts,
-        ]);
+            [
+                'posts' => $this->formatPosts($posts),
+            ]);
 
         $this->mailChimpGateway->send($html);
 
@@ -78,8 +77,20 @@ class CreateEmailCommand extends Command
         return 0;
     }
 
-    private function formatPost(array $post) : string
+    private function formatPosts(array $posts): array
     {
-        return implode(',', $post);
+        return array_map(function (array $post) {
+            return [
+                'description' => $post[4],
+                'jobType' => $post[5],
+                'remoteAvailable' => $post[6],
+                'compensation' => $post[7],
+                'contact' => $post[8] ?? "",
+                'required' => $post[9] ?? "",
+                'optional' => $post[10] ?? "",
+                'benefits' => $post[11] ?? "",
+                'misc' => $post[12] ?? "",
+            ];
+        }, $posts);
     }
 }
