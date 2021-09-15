@@ -10,3 +10,4 @@
 ###< symfony/framework-bundle ###
 .idea/
 /token.json
+/credentials.json
