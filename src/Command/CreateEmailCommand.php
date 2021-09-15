@@ -21,6 +21,12 @@ class CreateEmailCommand extends Command
     private MailChimpGateway $mailChimpGateway;
     private Environment $twigEnvironment;
 
+    /**
+     * @param GoogleSpreadSheetGateway $googleSpreadSheetGateway
+     * @param MailChimpGateway $mailChimp
+     * @param Environment $twigEnvironment
+     * @param string|null $name
+     */
     public function __construct(GoogleSpreadSheetGateway $googleSpreadSheetGateway, MailChimpGateway $mailChimp, Environment $twigEnvironment, string $name = null)
     {
         parent::__construct($name);
