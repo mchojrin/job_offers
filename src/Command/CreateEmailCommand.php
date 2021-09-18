@@ -6,18 +6,23 @@ use App\APIGateway\GoogleSpreadSheetGateway;
 use App\APIGateway\MailChimpGateway;
 use App\Exceptions\MailChimpException;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Twig\Environment;
 
+/**
+ * @todo Raise the abstraction level, this class should communicate with higher level services such as:
+ *  - DataGatherer (or SpreadSheetManager or something)
+ *  - EmailRenderer
+ *  - CampaignManager
+ *
+ *  This way it would allow for future changes to the specific providers used
+ */
 class CreateEmailCommand extends Command
 {
     protected static $defaultName = 'app:create-email';
-    protected static $defaultDescription = 'Create an email to be sent via MailChimp';
-    private string $spreadSheetId;
+    protected static $defaultDescription = 'Gather job offers of the week and create an email to be sent to subscribers';
     private GoogleSpreadSheetGateway $googleSpreadSheetGateway;
     private MailChimpGateway $mailChimpGateway;
     private Environment $twigEnvironment;
@@ -40,21 +45,12 @@ class CreateEmailCommand extends Command
     {
         $this
             ->setDescription(self::$defaultDescription)
-            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description');
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $arg1 = $input->getArgument('arg1');
-
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
-        }
-
-        if ($input->getOption('option1')) {
-        }
 
         $output->writeln('Opening spreadsheet');
 
@@ -82,6 +78,11 @@ class CreateEmailCommand extends Command
         return 0;
     }
 
+    /**
+     * @param array $posts
+     * @return array
+     * @todo Externalize this mapping into a YAML file or something
+     */
     private function formatPosts(array $posts): array
     {
         return array_map(function (array $post) {
