@@ -4,14 +4,14 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use App\Command\SendWeeklyJobOffersCommand;
+use App\Command\SendJobOffersCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Dotenv\Dotenv;
 use Twig\Loader\FilesystemLoader;
 use App\Template\TwigRenderer;
 use Google\Client;
 use Google\Service;
-use App\SpreadSheet\GoogleSpreadSheetReaderInterface;
+use App\SpreadSheet\GoogleSpreadSheetReader;
 use App\Repository\JobOfferRepository;
 use App\Campaign\Manager;
 use App\Campaign\MailChimpApiClient;
@@ -19,9 +19,9 @@ use App\Campaign\MailChimpApiClient;
 $dotEnv = new Dotenv();
 $dotEnv->loadEnv(__DIR__ . '/.env');
 
-$app = new Application('Dispatch weekly job offers', 'v1.0.0');
+$app = new Application('Dispatch job offers', 'v1.0.0');
 $googleClient = getClient(__DIR__ . '/credentials.json', __DIR__ . '/token.json');
-$spreadSheetReader = new GoogleSpreadSheetReaderInterface($googleClient);
+$spreadSheetReader = new GoogleSpreadSheetReader($googleClient);
 
 $mailChimpClient = new MailChimpApiClient(
     $_ENV['MAILCHIMP_API_KEY'],
@@ -46,7 +46,7 @@ $templateRenderer = new TwigRenderer(new FilesystemLoader(__DIR__ . '/templates'
     ]
 );
 
-$theCommand = new SendWeeklyJobOffersCommand(
+$theCommand = new SendJobOffersCommand(
     $jobOfferRepository,
     $campaignManager,
     $templateRenderer,
