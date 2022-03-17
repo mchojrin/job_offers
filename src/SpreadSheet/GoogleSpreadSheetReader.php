@@ -5,7 +5,7 @@ namespace App\SpreadSheet;
 use Google\Client;
 use Google\Service;
 
-class GoogleSpreadSheetReaderInterface implements ReaderInterface
+class GoogleSpreadSheetReader implements ReaderInterface
 {
     private Service $service;
 
