@@ -6,7 +6,5 @@ interface JobOfferRepositoryInterface
 {
     public function findAll() : array;
 
-    public function getPostsSince(\DateTimeInterface $startDate) : array;
-
-    public function getCurrentWeekPosts(): array;
+    public function getUnsentPosts(): array;
 }

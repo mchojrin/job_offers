@@ -12,10 +12,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class SendWeeklyJobOffersCommand extends Command
+class SendJobOffersCommand extends Command
 {
-    protected static $defaultName = 'app:send-weekly-job-offers';
-    protected static $defaultDescription = 'Gather job offers of the week and create an email to be sent to subscribers';
+    protected static $defaultName = 'app:send-job-offers';
+    protected static $defaultDescription = 'Gather unsent job offers and create an email to be sent to subscribers';
     private JobOfferRepositoryInterface $jobOfferRepository;
     private ManagerInterface $campaignManager;
     private RendererInterface $templateRenderer;
@@ -59,10 +59,10 @@ class SendWeeklyJobOffersCommand extends Command
 
         $output->writeln('Opening spreadsheet');
 
-        $jobOffers = $this->jobOfferRepository->getCurrentWeekPosts();
+        $jobOffers = $this->jobOfferRepository->getUnsentPosts();
 
         if (empty($jobOffers)) {
-            $output->writeln('No new offers for this week');
+            $output->writeln('No new offers to send');
 
             return 0;
         }
