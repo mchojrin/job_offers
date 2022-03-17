@@ -81,10 +81,17 @@ class SendJobOffersCommand extends Command
 
         $this->campaignManager->setSettings($settings);
 
+        $now = new \DateTimeImmutable();
+
         try {
             $this->campaignManager->send($html);
 
             $io->success('Email sent!');
+            foreach ($jobOffers as $jobOffer) {
+                $jobOffer->setSent($now);
+                $this->jobOfferRepository->persist($jobOffer);
+                $io->writeln('Offer '.$jobOffer->getDate()->format('d/m/Y H:i:s').' updated');
+            }
         } catch (MailChimpException $exception) {
             $io->error($exception->getMessage());
         }
