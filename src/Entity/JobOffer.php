@@ -14,6 +14,7 @@ class JobOffer
     private string $benefits;
     private string $misc;
     private \DateTimeImmutable $date;
+    private ?\DateTimeImmutable $sent;
 
     /**
      * @return \DateTimeImmutable
@@ -193,5 +194,21 @@ class JobOffer
     {
         $this->misc = $misc;
         return $this;
+    }
+
+    /**
+     * @return ?\DateTimeImmutable
+     */
+    public function getSent(): ?\DateTimeImmutable
+    {
+        return $this->sent;
+    }
+
+    /**
+     * @param \DateTimeImmutable $sent
+     */
+    public function setSent(\DateTimeImmutable $sent = null): void
+    {
+        $this->sent = $sent;
     }
 }

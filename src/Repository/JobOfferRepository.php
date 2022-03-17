@@ -7,6 +7,9 @@ use App\SpreadSheet\ReaderInterface;
 
 class JobOfferRepository implements JobOfferRepositoryInterface
 {
+    const DATE_COL = 0;
+    const SENT_COL = 14;
+
     private ReaderInterface $spreadsheetReader;
     private string $spreadsheetId;
     private string $sheetName;
@@ -47,20 +50,11 @@ class JobOfferRepository implements JobOfferRepositoryInterface
     /**
      * @return array
      */
-    public function getCurrentWeekPosts(): array
+    public function getUnsentPosts(): array
     {
-        return $this->getPostsSince(new \DateTimeImmutable('-7 day'));
-    }
+        return array_filter($this->findAll(), function(JobOffer $job) {
 
-    /**
-     * @param \DateTimeInterface $startDate
-     * @return array
-     */
-    public function getPostsSince(\DateTimeInterface $startDate) : array
-    {
-        return array_filter($this->findAll(), function(JobOffer $job) use ($startDate) {
-
-            return $job->getDate() >= $startDate;
+            return empty($job->getSent());
         });
     }
 
@@ -78,7 +72,9 @@ class JobOfferRepository implements JobOfferRepositoryInterface
             $jobOffer->$method($row[$column] ?? "");
         }
 
-        $jobOffer->setDate(\DateTimeImmutable::createFromFormat('d/m/Y H:i:s', $row[0]));
+        $jobOffer->setDate(\DateTimeImmutable::createFromFormat('d/m/Y H:i:s', $row[self::DATE_COL]));
+        $jobOffer->setSent(array_key_exists(self::SENT_COL, $row) && !empty($row[self::SENT_COL]) ? \DateTimeImmutable::createFromFormat('d/m/Y H:i:s', $row[self::SENT_COL]) : null);
+
         return $jobOffer;
     }
 }
