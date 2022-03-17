@@ -67,7 +67,7 @@ $app->run();
 function getClient(string $authConfigPath, string $tokenPath): Client
 {
     $client = new Client();
-    $client->setScopes(Service\Sheets::SPREADSHEETS_READONLY);
+    $client->setScopes(Service\Sheets::SPREADSHEETS);
     $client->setAuthConfig($authConfigPath);
     $client->setAccessType('offline');
     $client->setPrompt('select_account consent');
