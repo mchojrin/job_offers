@@ -11,7 +11,7 @@ use Twig\Loader\FilesystemLoader;
 use App\Template\TwigRenderer;
 use Google\Client;
 use Google\Service;
-use App\SpreadSheet\GoogleSpreadSheetReader;
+use App\SpreadSheet\GoogleSpreadSheet;
 use App\Repository\JobOfferRepository;
 use App\Campaign\Manager;
 use App\Campaign\MailChimpApiClient;
@@ -21,7 +21,10 @@ $dotEnv->loadEnv(__DIR__ . '/.env');
 
 $app = new Application('Dispatch job offers', 'v1.0.0');
 $googleClient = getClient(__DIR__ . '/credentials.json', __DIR__ . '/token.json');
-$spreadSheetReader = new GoogleSpreadSheetReader($googleClient);
+$spreadSheetReader = new GoogleSpreadSheet(
+        $googleClient,
+        $_ENV['GOOGLE_SPREADSHEET_ID'],
+);
 
 $mailChimpClient = new MailChimpApiClient(
     $_ENV['MAILCHIMP_API_KEY'],
@@ -36,7 +39,6 @@ $campaignManager = new Manager($mailChimpClient,
 
 $jobOfferRepository = new JobOfferRepository(
     $spreadSheetReader,
-    $_ENV['GOOGLE_SPREADSHEET_ID'],
     $_ENV['GOOGLE_SPREADSHEET_SHEET_NAME'],
     require_once __DIR__ . '/config/spreadsheet2tpl.php');
 

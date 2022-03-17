@@ -15,7 +15,7 @@ class JobOfferRepositoryTest extends TestCase
         $twoDaysAgo = new \DateTimeImmutable('-2');
         $twoWeeksAgo = new \DateTimeImmutable('-2 week');
         $spreadsheetReader = $this->createMock(
-            'App\SpreadSheet\ReaderInterface'
+            'App\SpreadSheet\SpreadsheetInterface'
         );
         $newOffer = [
             $twoDaysAgo->format('d/m/Y H:i:s'),

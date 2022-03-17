@@ -3,28 +3,25 @@
 namespace App\Repository;
 
 use App\Entity\JobOffer;
-use App\SpreadSheet\ReaderInterface;
+use App\SpreadSheet\SpreadsheetInterface;
 
 class JobOfferRepository implements JobOfferRepositoryInterface
 {
     const DATE_COL = 0;
     const SENT_COL = 14;
 
-    private ReaderInterface $spreadsheetReader;
-    private string $spreadsheetId;
+    private SpreadsheetInterface $spreadsheetReader;
     private string $sheetName;
     private array $mapping;
 
     /**
-     * @param ReaderInterface $spreadsheetReader
-     * @param string $spreadsheetId
+     * @param SpreadsheetInterface $spreadsheetReader
      * @param string $sheetName
      * @param array $mapping
      */
-    public function __construct(ReaderInterface $spreadsheetReader, string $spreadsheetId, string $sheetName, array $mapping)
+    public function __construct(SpreadsheetInterface $spreadsheetReader, string $sheetName, array $mapping)
     {
         $this->spreadsheetReader = $spreadsheetReader;
-        $this->spreadsheetId = $spreadsheetId;
         $this->sheetName = $sheetName;
         $this->mapping = $mapping;
     }
@@ -36,7 +33,7 @@ class JobOfferRepository implements JobOfferRepositoryInterface
     {
         $ret = [];
 
-        foreach ($this->spreadsheetReader->getFullSheetContents($this->spreadsheetId, $this->sheetName) as $i => $row) {
+        foreach ($this->spreadsheetReader->getFullSheetContents($this->sheetName) as $i => $row) {
             if ($i == 0) {
                 // Skip header row
                 continue;
@@ -76,5 +73,10 @@ class JobOfferRepository implements JobOfferRepositoryInterface
         $jobOffer->setSent(array_key_exists(self::SENT_COL, $row) && !empty($row[self::SENT_COL]) ? \DateTimeImmutable::createFromFormat('d/m/Y H:i:s', $row[self::SENT_COL]) : null);
 
         return $jobOffer;
+    }
+
+    public function persist(JobOffer $jobOffer)
+    {
+
     }
 }
