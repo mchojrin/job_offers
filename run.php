@@ -5,21 +5,22 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 use App\Command\SendJobOffersCommand;
-use Symfony\Component\{Console\Application,Dotenv\Dotenv};
+use Symfony\Component\{Console\Application, Dotenv\Dotenv};
 use Twig\Loader\FilesystemLoader;
 use App\Template\TwigRenderer;
-use Google\{Client,Service};
+use Google\{Client, Service};
 use App\SpreadSheet\GoogleSpreadSheet;
 use App\Repository\JobOfferRepository;
 use App\Campaign\Manager;
 use App\Campaign\MailchimpAPIClient;
-use Symfony\Component\Mailer\{Transport,Mailer};
+use App\Mail\GmailMailer;
 
 $dotEnv = new Dotenv();
 $dotEnv->loadEnv(__DIR__ . '/.env');
 
 $app = new Application('Dispatch job offers', 'v1.0.0');
 $googleClient = getClient(__DIR__ . '/credentials.json', __DIR__ . '/token.json');
+
 $spreadSheetReader = new GoogleSpreadSheet(
     $googleClient,
     $_ENV['GOOGLE_SPREADSHEET_ID'],
@@ -47,9 +48,9 @@ $templateRenderer = new TwigRenderer(new FilesystemLoader(__DIR__ . '/templates'
     ]
 );
 
-$transport = Transport::fromDsn($_ENV['MAILER_DSN']);
-
-$mailer = new Mailer($transport);
+$mailer = new GmailMailer(
+    $googleClient
+);
 
 $theCommand = new SendJobOffersCommand(
     $jobOfferRepository,
@@ -71,7 +72,11 @@ $app->run();
 function getClient(string $authConfigPath, string $tokenPath): Client
 {
     $client = new Client();
-    $client->setScopes(Service\Sheets::SPREADSHEETS);
+    $client->setScopes([
+        Service\Sheets::SPREADSHEETS,
+        Google\Service\Gmail::GMAIL_COMPOSE,
+        Google\Service\Gmail::GMAIL_SEND,
+    ]);
     $client->setAuthConfig($authConfigPath);
     $client->setAccessType('offline');
     $client->setPrompt('select_account consent');

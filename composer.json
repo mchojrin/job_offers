@@ -5,13 +5,11 @@
         "php": ">=8.0",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "google/apiclient": "^2.0",
+        "google/apiclient": "^2.12.1",
         "jhut89/mailchimp3php": "^3.2",
         "symfony/console": "^5.3",
         "symfony/dotenv": "^5.3",
         "symfony/flex": "^v1.15",
-        "symfony/google-mailer": "4.4.*",
-        "symfony/mailer": "v4.4.40",
         "twig/twig": "^3.3"
     },
     "require-dev": {
@@ -51,9 +49,15 @@
         "symfony": {
             "allow-contrib": false,
             "require": "4.4.*"
-        }
+        },
+        "google/apiclient-services": [
+            "Drive",
+            "Gmail",
+            "Sheets"
+        ]
     },
     "scripts": {
+        "pre-autoload-dump": "Google\\Task\\Composer::cleanup",
         "auto-scripts": {
 
         }

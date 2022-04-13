@@ -4,6 +4,47 @@ namespace App\Entity;
 
 class JobOffer
 {
+    /**
+     * @todo Shoudl this be a separate publisher class?
+     */
+    private string $publisherName;
+    private string $publisherEmail;
+
+    /**
+     * @return string
+     */
+    public function getPublisherEmail(): string
+    {
+        return $this->publisherEmail;
+    }
+
+    /**
+     * @param string $publisherEmail
+     * @return JobOffer
+     */
+    public function setPublisherEmail(string $publisherEmail): JobOffer
+    {
+        $this->publisherEmail = $publisherEmail;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPublisherName(): string
+    {
+        return $this->publisherName;
+    }
+
+    /**
+     * @param string $publisherName
+     * @return JobOffer
+     */
+    public function setPublisherName(string $publisherName): JobOffer
+    {
+        $this->publisherName = $publisherName;
+        return $this;
+    }
     private string $description;
     private string $jobType;
     private bool $remoteAvailable;
