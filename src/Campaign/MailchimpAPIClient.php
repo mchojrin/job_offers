@@ -5,7 +5,7 @@ namespace App\Campaign;
 use MailchimpAPI\Mailchimp;
 use App\Entity\Campaign;
 
-class MailchimpAPIClient extends Mailchimp implements ApiClientInterface
+class MailchimpAPIClient extends Mailchimp implements APIClientInterface
 {
     /**
      * @param string $html

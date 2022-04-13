@@ -14,7 +14,7 @@ use Google\Service;
 use App\SpreadSheet\GoogleSpreadSheet;
 use App\Repository\JobOfferRepository;
 use App\Campaign\Manager;
-use App\Campaign\MailChimpApiClient;
+use App\Campaign\MailchimpAPIClient;
 
 $dotEnv = new Dotenv();
 $dotEnv->loadEnv(__DIR__ . '/.env');
@@ -26,7 +26,7 @@ $spreadSheetReader = new GoogleSpreadSheet(
         $_ENV['GOOGLE_SPREADSHEET_ID'],
 );
 
-$mailChimpClient = new MailChimpApiClient(
+$mailChimpClient = new MailchimpAPIClient(
     $_ENV['MAILCHIMP_API_KEY'],
 );
 

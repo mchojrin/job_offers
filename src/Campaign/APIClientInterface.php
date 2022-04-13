@@ -4,7 +4,7 @@ namespace App\Campaign;
 
 use App\Entity\Campaign;
 
-interface ApiClientInterface
+interface APIClientInterface
 {
     public function createCampaign(array $settings): Campaign;
 

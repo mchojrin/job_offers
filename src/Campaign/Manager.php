@@ -4,14 +4,14 @@ namespace App\Campaign;
 
 class Manager implements ManagerInterface
 {
-    private ApiClientInterface $client;
+    private APIClientInterface $client;
     private array $settings;
 
     /**
-     * @param ApiClientInterface $client
+     * @param APIClientInterface $client
      * @param array $settings
      */
-    public function __construct(ApiClientInterface $client, array $settings = [])
+    public function __construct(APIClientInterface $client, array $settings = [])
     {
         $this->client = $client;
         $this->settings = $settings;
