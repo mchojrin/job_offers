@@ -5,16 +5,15 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 use App\Command\SendJobOffersCommand;
-use Symfony\Component\Console\Application;
-use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\{Console\Application,Dotenv\Dotenv};
 use Twig\Loader\FilesystemLoader;
 use App\Template\TwigRenderer;
-use Google\Client;
-use Google\Service;
+use Google\{Client,Service};
 use App\SpreadSheet\GoogleSpreadSheet;
 use App\Repository\JobOfferRepository;
 use App\Campaign\Manager;
 use App\Campaign\MailchimpAPIClient;
+use Symfony\Component\Mailer\{Transport,Mailer};
 
 $dotEnv = new Dotenv();
 $dotEnv->loadEnv(__DIR__ . '/.env');
@@ -22,8 +21,8 @@ $dotEnv->loadEnv(__DIR__ . '/.env');
 $app = new Application('Dispatch job offers', 'v1.0.0');
 $googleClient = getClient(__DIR__ . '/credentials.json', __DIR__ . '/token.json');
 $spreadSheetReader = new GoogleSpreadSheet(
-        $googleClient,
-        $_ENV['GOOGLE_SPREADSHEET_ID'],
+    $googleClient,
+    $_ENV['GOOGLE_SPREADSHEET_ID'],
 );
 
 $mailChimpClient = new MailchimpAPIClient(
@@ -48,10 +47,15 @@ $templateRenderer = new TwigRenderer(new FilesystemLoader(__DIR__ . '/templates'
     ]
 );
 
+$transport = Transport::fromDsn($_ENV['MAILER_DSN']);
+
+$mailer = new Mailer($transport);
+
 $theCommand = new SendJobOffersCommand(
     $jobOfferRepository,
     $campaignManager,
     $templateRenderer,
+    $mailer,
     [
         'subject' => $_ENV['MAILCHIMP_SUBJECT'],
         'fromName' => $_ENV['MAILCHIMP_FROM_NAME'],

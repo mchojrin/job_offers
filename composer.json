@@ -10,6 +10,8 @@
         "symfony/console": "^5.3",
         "symfony/dotenv": "^5.3",
         "symfony/flex": "^v1.15",
+        "symfony/google-mailer": "4.4.*",
+        "symfony/mailer": "v4.4.40",
         "twig/twig": "^3.3"
     },
     "require-dev": {
@@ -19,7 +21,10 @@
         "preferred-install": {
             "*": "dist"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/flex": true
+        }
     },
     "autoload": {
         "psr-4": {

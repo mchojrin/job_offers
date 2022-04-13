@@ -2,8 +2,11 @@
     "doctrine/instantiator": {
         "version": "1.4.0"
     },
-    "drewm/mailchimp-api": {
-        "version": "v2.5.4"
+    "doctrine/lexer": {
+        "version": "1.2.3"
+    },
+    "egulias/email-validator": {
+        "version": "3.1.2"
     },
     "firebase/php-jwt": {
         "version": "v5.4.0"
@@ -37,9 +40,6 @@
     },
     "jhut89/mailchimp3php": {
         "version": "3.2.3"
-    },
-    "mailchimp/marketing": {
-        "version": "3.0.66"
     },
     "monolog/monolog": {
         "version": "2.3.2"
@@ -185,14 +185,17 @@
             "config/bootstrap.php"
         ]
     },
-    "symfony/debug": {
-        "version": "v4.4.27"
-    },
     "symfony/deprecation-contracts": {
         "version": "v2.4.0"
     },
     "symfony/dotenv": {
         "version": "v4.4.29"
+    },
+    "symfony/event-dispatcher": {
+        "version": "v4.4.37"
+    },
+    "symfony/event-dispatcher-contracts": {
+        "version": "v1.1.12"
     },
     "symfony/flex": {
         "version": "1.0",
@@ -206,8 +209,32 @@
             ".env"
         ]
     },
+    "symfony/google-mailer": {
+        "version": "4.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.4",
+            "ref": "f8fd4ddb9b477510f8f4bce2b9c054ab428c0120"
+        }
+    },
+    "symfony/mailer": {
+        "version": "4.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.3",
+            "ref": "97a61eabb351d7f6cb7702039bcfe07fe9d7e03c"
+        },
+        "files": [
+            "config/packages/mailer.yaml"
+        ]
+    },
     "symfony/mime": {
         "version": "v4.4.27"
+    },
+    "symfony/polyfill-intl-grapheme": {
+        "version": "v1.23.1"
     },
     "symfony/polyfill-intl-idn": {
         "version": "v1.23.0"
@@ -230,6 +257,9 @@
     "symfony/service-contracts": {
         "version": "v2.4.0"
     },
+    "symfony/string": {
+        "version": "v5.3.7"
+    },
     "theseer/tokenizer": {
         "version": "1.2.1"
     },
@@ -238,8 +268,5 @@
     },
     "webmozart/assert": {
         "version": "1.10.0"
-    },
-    "welp/mailchimp-bundle": {
-        "version": "1.3.2"
     }
 }

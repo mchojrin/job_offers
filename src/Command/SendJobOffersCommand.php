@@ -11,6 +11,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 class SendJobOffersCommand extends Command
 {
@@ -19,6 +21,7 @@ class SendJobOffersCommand extends Command
     private JobOfferRepositoryInterface $jobOfferRepository;
     private ManagerInterface $campaignManager;
     private RendererInterface $templateRenderer;
+    private MailerInterface $mailer;
     private array $defaults = [];
 
     /**
@@ -28,13 +31,14 @@ class SendJobOffersCommand extends Command
      * @param array $defaults
      * @param string|null $name
      */
-    public function __construct(JobOfferRepositoryInterface $jobOfferRepository, ManagerInterface $campaignManager, RendererInterface $templateRenderer, array $defaults = [], string $name = null)
+    public function __construct(JobOfferRepositoryInterface $jobOfferRepository, ManagerInterface $campaignManager, RendererInterface $templateRenderer, MailerInterface $mailer, array $defaults = [], string $name = null)
     {
         $this->defaults = $defaults;
         parent::__construct($name);
         $this->jobOfferRepository = $jobOfferRepository;
         $this->campaignManager = $campaignManager;
         $this->templateRenderer = $templateRenderer;
+        $this->mailer = $mailer;
     }
 
     protected function configure(): void
@@ -45,6 +49,7 @@ class SendJobOffersCommand extends Command
             ->addOption('fromName', 'f', InputOption::VALUE_REQUIRED, 'Email sender\'s name', $this->defaults['fromName'])
             ->addOption('title', 't', InputOption::VALUE_REQUIRED, 'Prefix of the campagin\'s title', $this->defaults['title'])
             ->addOption('replyTo', 'r', InputOption::VALUE_REQUIRED, 'Address where replies should be sent', $this->defaults['replyTo'])
+            ->addOption('dry-run', 'd', InputOption::VALUE_NONE, 'Simulate a run')
         ;
     }
 
@@ -83,14 +88,41 @@ class SendJobOffersCommand extends Command
 
         $now = new \DateTimeImmutable();
 
+        $dryRun = $input->getOption('dry-run');
+
         try {
-            $this->campaignManager->send($html);
+            if (!$dryRun) {
+                $this->campaignManager->send($html);
+            } else {
+                $output->write('Message not sent -- dry-run');
+            }
 
             $io->success('Email sent!');
+            $senders = [];
             foreach ($jobOffers as $jobOffer) {
+                $senders[$jobOffer->getContact()] = $jobOffer->getContact();
                 $jobOffer->setSent($now);
-                $this->jobOfferRepository->persist($jobOffer);
+                if (!$dryRun) {
+                    $this->jobOfferRepository->persist($jobOffer);
+                }
+
                 $io->writeln('Offer '.$jobOffer->getDate()->format('d/m/Y H:i:s').' updated');
+            }
+            foreach ($senders as $sender) {
+                $output->writeln('Sending ACK to '.$sender);
+
+                $email = (new Email())
+                    ->from('mauro.chojrin@leewayweb.com')
+                    ->to($sender)
+                    ->priority(Email::PRIORITY_HIGHEST)
+                    ->subject('Oferta de trabajo enviada')
+                    ->html('<p>Hola,</p>
+                      <p>Este correo es para confirmar que la oferta que cargaste en Leeway Academy ha sido enviada a los suscriptores del newsletter.</p>
+                      <p>Los interesados se contactarán directamente a esta dirección.</p>
+                      <p>Saludos,</p> 
+                    ');
+
+                $this->mailer->send($email);
             }
         } catch (MailChimpException $exception) {
             $io->error($exception->getMessage());
